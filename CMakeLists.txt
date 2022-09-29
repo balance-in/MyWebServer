@@ -9,13 +9,21 @@ if (NOT CMAKE_BUILD_TYPE)
     message("Setting default build type to Release")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -pthread -Wall -Wno-unused-parameter -lmysqlclient")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -pthread -Wall -Wno-unused-parameter")
 
 project(MyWebServer CXX)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/log)
+include_directories(${PROJECT_SOURCE_DIR}/pool)
 
-add_subdirectory(./src)
+
+set(SRC ${PROJECT_SOURCE_DIR}/pool/threadpool.h 
+        ${PROJECT_SOURCE_DIR}/log/log.cpp
+        ${PROJECT_SOURCE_DIR}/log/log.h 
+        ${PROJECT_SOURCE_DIR}/log/block_queue.h)
+
+
+add_subdirectory(./timer)
 
 add_subdirectory(./log)
 
