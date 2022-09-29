@@ -39,9 +39,9 @@ class Log {
   std::unique_ptr<std::thread> write_thread;            //写入线程
   std::mutex mutex_;
 
-  bool is_async;      //是否同步
-  bool is_close_log;  //是否关闭日志
-  bool level_;        //日志等级
+  bool is_async;  //是否同步
+  bool is_open;   //是否关闭日志
+  bool level_;    //日志等级
 
  private:
   Log();
@@ -61,6 +61,8 @@ class Log {
     return &instance;
   }
 
+  bool IsOpen() { return is_open; }
+
   static void flush_log_thread() { Log::get_instance()->async_write_log(); }
 
   bool init(const char *file_name, int close_log, int buf_size = 8192,
@@ -70,25 +72,30 @@ class Log {
   void flush(void);
 };
 
-#define LOG_DEBUG(format, ...)                                \
-  if (0 == is_close_log) {                                    \
-    Log::get_instance()->write_log(0, format, ##__VA_ARGS__); \
-    Log::get_instance()->flush();                             \
-  }
-#define LOG_INFO(format, ...)                                 \
-  if (0 == is_close_log) {                                    \
-    Log::get_instance()->write_log(1, format, ##__VA_ARGS__); \
-    Log::get_instance()->flush();                             \
-  }
-#define LOG_WARN(format, ...)                                 \
-  if (0 == is_close_log) {                                    \
-    Log::get_instance()->write_log(2, format, ##__VA_ARGS__); \
-    Log::get_instance()->flush();                             \
-  }
-#define LOG_ERROR(format, ...)                                \
-  if (0 == is_close_log) {                                    \
-    Log::get_instance()->write_log(3, format, ##__VA_ARGS__); \
-    Log::get_instance()->flush();                             \
-  }
+#define LOG_BASE(level, format, ...)                \
+  do {                                              \
+    Log *log = Log::get_instance();                 \
+    if (log->IsOpen()) {                            \
+      log->write_log(level, format, ##__VA_ARGS__); \
+      log->flush();                                 \
+    }                                               \
+  } while (0);
+
+#define LOG_DEBUG(format, ...)         \
+  do {                                 \
+    LOG_BASE(0, format, ##__VA_ARGS__) \
+  } while (0);
+#define LOG_INFO(format, ...)          \
+  do {                                 \
+    LOG_BASE(1, format, ##__VA_ARGS__) \
+  } while (0);
+#define LOG_WARN(format, ...)          \
+  do {                                 \
+    LOG_BASE(2, format, ##__VA_ARGS__) \
+  } while (0);
+#define LOG_ERROR(format, ...)         \
+  do {                                 \
+    LOG_BASE(3, format, ##__VA_ARGS__) \
+  } while (0);
 
 #endif

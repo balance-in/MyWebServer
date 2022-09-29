@@ -49,15 +49,14 @@ class block_queue {
 };
 
 template <class T>
-block_queue<T>::block_queue(size_t MaxCapacity = 1000)
-    : capacity_(MaxCapacity) {
+block_queue<T>::block_queue(size_t MaxCapacity) : capacity_(MaxCapacity) {
   assert(MaxCapacity > 0);
   isClose_ = false;
 }
 
 template <class T>
 block_queue<T>::~block_queue() {
-  CSlose();
+  Close();
 }
 
 template <class T>
@@ -108,7 +107,7 @@ size_t block_queue<T>::capacity() {
 
 template <class T>
 void block_queue<T>::push_back(const T &item) {
-  std::lock_guard<std::mutex> locker(mutex_);
+  std::unique_lock<std::mutex> locker(mutex_);
   while (deque_.size() >= capacity_) {
     cond_producer.wait(locker);
   }
@@ -118,7 +117,7 @@ void block_queue<T>::push_back(const T &item) {
 
 template <class T>
 void block_queue<T>::push_front(const T &item) {
-  std::lock_guard<std::mutex> locker(mutex_);
+  std::unique_lock<std::mutex> locker(mutex_);
   while (deque_.size() >= capacity_) {
     cond_producer.wait(locker);
   }
@@ -140,7 +139,7 @@ bool block_queue<T>::full() {
 
 template <class T>
 bool block_queue<T>::pop(T &item) {
-  std::lock_guard<std::mutex> locker(mutex_);
+  std::unique_lock<std::mutex> locker(mutex_);
   while (deque_.empty()) {
     cond_consumer.wait(locker);
     if (isClose_) {
@@ -157,7 +156,7 @@ template <class T>
 bool block_queue<T>::pop(T &item, int timeout) {
   std::unique_lock<std::mutex> locker(mutex_);
   while (deque_.empty()) {
-    if (cond_consumer.wait_for(lcoker, std::chrono::seconds(timeout)) ==
+    if (cond_consumer.wait_for(locker, std::chrono::seconds(timeout)) ==
         std::cv_status::timeout) {
       return false;
     }

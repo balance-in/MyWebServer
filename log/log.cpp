@@ -37,8 +37,8 @@ Log::~Log() {
   }
 }
 //异步需要设置阻塞队列的长度，同步不需要设置
-bool Log::init(const char *file_name, int close_log, int buf_size = 8192,
-               int split_lines = 5000000, int max_queue_size = 0) {
+bool Log::init(const char *file_name, int close_log, int buf_size,
+               int split_lines, int max_queue_size) {
   if (max_queue_size >= 1) {
     is_async = true;
     if (!log_queue) {
@@ -54,7 +54,7 @@ bool Log::init(const char *file_name, int close_log, int buf_size = 8192,
     is_async = false;
   }
 
-  is_close_log = close_log;
+  is_open = close_log;
   max_buf_log_size = buf_size;
   buf_ = new char[max_buf_log_size];
   memset(buf_, '\0', max_buf_log_size);
@@ -111,8 +111,10 @@ void Log::write_log(int level, const char *format, ...) {
       break;
     case 2:
       strcpy(s, "[warn]:");
+      break;
     case 3:
       strcpy(s, "[errno]:");
+      break;
     default:
       strcpy(s, "[info]:");
       break;
