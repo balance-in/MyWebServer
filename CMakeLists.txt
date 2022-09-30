@@ -20,7 +20,8 @@ include_directories(${PROJECT_SOURCE_DIR}/pool)
 set(SRC ${PROJECT_SOURCE_DIR}/pool/threadpool.h 
         ${PROJECT_SOURCE_DIR}/log/log.cpp
         ${PROJECT_SOURCE_DIR}/log/log.h 
-        ${PROJECT_SOURCE_DIR}/log/block_queue.h)
+        ${PROJECT_SOURCE_DIR}/log/block_queue.h
+        ${PROJECT_SOURCE_DIR}/buffer/buffer.h)
 
 
 add_subdirectory(./timer)
@@ -28,3 +29,5 @@ add_subdirectory(./timer)
 add_subdirectory(./log)
 
 add_subdirectory(./pool)
+
+add_subdirectory(./http)
