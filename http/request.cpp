@@ -154,6 +154,106 @@ void Request::parse_from_url_encoded() {
       case '&':
         value = body_.substr(j, i - j);
         j = i + 1;
+        post_[key] = value;
+        LOG_DEBUG("%s=%s", key.c_str(), value.c_str());
+        break;
+      default:
+        break;
     }
   }
+  assert(j <= i);
+  if (post_.count(key) == 0 && j < i) {
+    value = body_.substr(j, i - j);
+    post_[key] = value;
+  }
+}
+
+bool Request::user_verify(const string& name, const string& pwd,
+                          bool is_login_) {
+  if (name == "" || pwd == "") return false;
+  LOG_DEBUG("Verify name:%s pwd:%s", name.c_str(), pwd.c_str());
+  MYSQL* sql;
+  SqlConnRALL(&sql, SqlConnPool::get_instance());
+  assert(sql);
+
+  bool flag = false;
+  unsigned int j = 0;
+  char order[256] = {0};
+  MYSQL_FIELD* fields = nullptr;
+  MYSQL_RES* res = nullptr;
+
+  if (!is_login_) flag = true;
+
+  snprintf(order, 256,
+           "SELECT username, password FROM user WHERE username='%s' LIMIT 1",
+           name.c_str());
+  LOG_DEBUG("%s", order);
+
+  if (mysql_query(sql, order)) {
+    mysql_free_result(res);
+    return false;
+  }
+  res = mysql_store_result(sql);
+  j = mysql_num_fields(res);
+  fields = mysql_fetch_field(res);
+
+  while (MYSQL_ROW row = mysql_fetch_row(res)) {
+    LOG_DEBUG("MYSQL ROW:%s %s", row[0], row[1]);
+    string password(row[1]);
+    /* 注册行为 且 用户名未被使用*/
+    if (is_login_) {
+      if (pwd == password) {
+        flag = true;
+      } else {
+        flag = false;
+        LOG_DEBUG("pwd error!");
+      }
+    } else {
+      flag = false;
+      LOG_DEBUG("user used!");
+    }
+  }
+
+  mysql_free_result(res);
+
+  if (!is_login_ && flag == true) {
+    LOG_DEBUG("register!");
+    bzero(order, 256);
+    snprintf(order, 256,
+             "INSERT INTO user(username, password) VALUES('%s','%s')",
+             name.c_str(), pwd.c_str());
+    LOG_DEBUG("%s", order);
+    if (mysql_query(sql, order)) {
+      LOG_DEBUG("Insert error!");
+      flag = false;
+    }
+    flag = true;
+  }
+  SqlConnPool::get_instance()->free_conn(sql);
+  LOG_DEBUG("User Verify success!");
+  return flag;
+}
+
+std::string Request::path() const { return path_; }
+
+std::string& Request::path() { return path_; }
+
+std::string Request::method() const { return method_; }
+
+std::string Request::version() const { return version_; }
+
+std::string Request::get_post(const std::string& key) const {
+  assert(key != "");
+  if (post_.count(key) == 1) {
+    return post_.find(key)->second;
+  }
+  return "";
+}
+
+std::string Request::get_post(const char* key) const {
+  assert(key != nullptr);
+  if (post_.count(key) == 1) {
+    return post_.find(key)->second;
+  }
+  return "";
 }
