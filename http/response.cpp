@@ -40,12 +40,26 @@ const unordered_map<int, string> Response::CODE_PATH = {
 Response::Response() {
   code_ = -1;
   path_ = srcDir_ = "";
-  isKeepAlive = false;
+  isKeepAlive_ = false;
   mmFile_ = nullptr;
   mmFileStat_ = {0};
 }
 
 Response::~Response() { unmap_file(); }
+
+void Response::init(const std::string &srcDir, std::string &path,
+                    bool isKeppAlive, int code) {
+  assert(srcDir != "");
+  if (mmFile_) {
+    unmap_file();
+  }
+  code_ = code;
+  isKeepAlive_ = isKeppAlive;
+  path_ = path;
+  srcDir_ = srcDir;
+  mmFile_ = nullptr;
+  mmFileStat_ = {0};
+}
 
 void Response::make_response(Buffer &buff) {
   //判断请求的资源文件
@@ -87,7 +101,7 @@ void Response::add_state_line(Buffer &buff) {
 
 void Response::add_header(Buffer &buff) {
   buff.append("Connection: ");
-  if (isKeepAlive) {
+  if (isKeepAlive_) {
     buff.append("keep-alive\r\n");
     buff.append("keep-alive: max=6, timeout=120\r\n");
   } else {

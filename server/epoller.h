@@ -30,7 +30,7 @@ class Epoller {
   bool mod_fd(int fd, uint32_t events);
   bool del_fd(int fd);
 
-  int wait_(int timeout = -1);
+  int wait(int timeout = -1);
   int get_event_fd(size_t i) const;
   uint32_t get_events(size_t i) const;
 

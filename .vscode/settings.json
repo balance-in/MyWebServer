@@ -95,7 +95,9 @@
     "executor": "cpp",
     "io_context": "cpp",
     "netfwd": "cpp",
-    "queue": "cpp"
+    "queue": "cpp",
+    "regex": "cpp",
+    "shared_mutex": "cpp"
   },
   "C_Cpp.clang_format_fallbackStyle": "Google",
   "C_Cpp.clang_format_style": "file",

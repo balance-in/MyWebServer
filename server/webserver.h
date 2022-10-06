@@ -26,7 +26,7 @@
 #include "../log/log.h"
 #include "../pool/sqlconnpool.h"
 #include "../pool/threadpool.h"
-#include "../timer/lst_timer.h"
+#include "../timer/heaptimer.h"
 #include "epoller.h"
 
 class WebServer {
@@ -58,7 +58,7 @@ class WebServer {
 
   static const int MAX_FD = 65536;
 
-  static int setnonblocking(int fd);
+  static int set_non_blocking(int fd);
 
   int port_;
   bool open_linger_;
@@ -70,7 +70,7 @@ class WebServer {
   uint32_t listen_event_;
   uint32_t conn_evnet_;
 
-  std::unique_ptr<client_data> user_timer;
+  std::unique_ptr<HeapTimer> timer_;
   std::unique_ptr<ThreadPool> thread_pool_;
   std::unique_ptr<Epoller> epoller_;
   std::unordered_map<int, HttpConn> users_;

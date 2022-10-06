@@ -19,8 +19,8 @@
 
 #include <unordered_map>
 
+#include "../buffer/buffer.h"
 #include "../log/log.h"
-#include "buffer.h"
 
 class Response {
  public:
@@ -45,7 +45,7 @@ class Response {
   std::string get_file_type();
 
   int code_;
-  bool isKeepAlive;
+  bool isKeepAlive_;
 
   std::string path_;
   std::string srcDir_;

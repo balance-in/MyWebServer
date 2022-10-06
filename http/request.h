@@ -20,9 +20,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "../buffer/buffer.h"
 #include "../log/log.h"
 #include "../pool/sqlconnpool.h"
-#include "buffer.h"
 
 class Request {
  public:

@@ -1,2 +1,2 @@
 
-add_executable(timer ${SRC} test.cpp lst_timer.cpp lst_timer.h)
+add_executable(timer ${SRC} test.cpp  heaptimer.h heaptimer.cpp)

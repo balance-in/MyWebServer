@@ -43,6 +43,8 @@ struct sockaddr_in HttpConn::get_addr() const {
   return addr_;
 }
 
+const char* HttpConn::get_ip() const { return inet_ntoa(addr_.sin_addr); }
+
 int HttpConn::get_port() const { return addr_.sin_port; }
 
 ssize_t HttpConn::read(int* saveErrno) {
