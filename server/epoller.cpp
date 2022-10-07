@@ -1,7 +1,7 @@
 #include "epoller.h"
 
 Epoller::Epoller(int max_event)
-    : epollfd_(epoll_create1(512)), events_(max_event) {
+    : epollfd_(epoll_create(512)), events_(max_event) {
   assert(epollfd_ >= 0 && events_.size() > 0);
 }
 
